@@ -1,0 +1,5 @@
+{
+  "name": "Weekly Meal Planner",
+  "description": "Generate a randomized weekly meal plan from your own CSV list of meals.",
+  "requestFramePermissions": []
+}
