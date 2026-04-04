@@ -1,5 +1,5 @@
 {
-  "name": "Weekly Meal Planner",
-  "description": "Generate a randomized weekly meal plan from your own CSV list of meals.",
+  "name": "Bi-Weekly Meal Planner",
+  "description": "Generate a unique 14-day meal plan from your meals.csv file with no repeating meals.",
   "requestFramePermissions": []
 }
