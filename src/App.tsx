@@ -100,19 +100,37 @@ export default function App() {
 
     // Separate meals into unused (preferred) and used (history)
     const unusedMeals = meals.filter(m => !history.includes(m.name));
-    const usedMeals = meals.filter(m => history.includes(m.name));
-
-    // Shuffle both groups
-    const shuffledUnused = [...unusedMeals].sort(() => Math.random() - 0.5);
-    const shuffledUsed = [...usedMeals].sort(() => Math.random() - 0.5);
-
-    // Create a pool: Unused first, then Used to fill the gaps
-    const pool = [...shuffledUnused, ...shuffledUsed];
     
-    // We need exactly 18 meals for 2 weeks (5*1 + 2*2 = 9 per week)
-    const selectedForPlan = pool.slice(0, 18);
-    let mealIdx = 0;
+    let selectedForPlan: Meal[] = [];
+    let newHistory: string[] = [...history];
 
+    if (unusedMeals.length >= 18) {
+      // Case 1: We have enough unused meals to fill the whole plan
+      const shuffledUnused = [...unusedMeals].sort(() => Math.random() - 0.5);
+      selectedForPlan = shuffledUnused.slice(0, 18);
+      newHistory = [...history, ...selectedForPlan.map(m => m.name)];
+    } else {
+      // Case 2: We need to use all remaining unused meals and then start over
+      const shuffledUnused = [...unusedMeals].sort(() => Math.random() - 0.5);
+      const remainingNeeded = 18 - unusedMeals.length;
+      
+      // Reset history logic: The new history will be the meals picked from the "fresh" list
+      // plus the ones we just picked to finish the old list.
+      // But to satisfy "36 meals resting", we just keep adding until we hit the limit.
+      
+      // Let's pick the remaining from the full list, excluding the ones we just picked from unused
+      const fullListShuffled = [...meals]
+        .filter(m => !shuffledUnused.some(um => um.name === m.name))
+        .sort(() => Math.random() - 0.5);
+      
+      selectedForPlan = [...shuffledUnused, ...fullListShuffled.slice(0, remainingNeeded)];
+      
+      // If we've exhausted the list, the new history should contain all 18 meals 
+      // just picked to ensure they aren't repeated in the very next generation.
+      newHistory = selectedForPlan.map(m => m.name);
+    }
+
+    let mealIdx = 0;
     const generateWeek = () => DAYS.map(day => {
       const isWeekend = day === 'Saturday' || day === 'Sunday';
       const count = isWeekend ? 2 : 1;
@@ -132,9 +150,6 @@ export default function App() {
     const week2 = generateWeek();
 
     setMealPlan({ week1, week2 });
-
-    // Update history with the meals just used
-    const newHistory = selectedForPlan.map(m => m.name);
     setHistory(newHistory);
     localStorage.setItem('meal_history', JSON.stringify(newHistory));
   };
@@ -223,17 +238,26 @@ export default function App() {
               
               <div className="pt-4 border-t border-emerald-800">
                 <h4 className="text-[10px] uppercase tracking-wider font-bold mb-2 opacity-60">Rotation History</h4>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs">{history.length} meals resting</span>
-                  <button 
-                    onClick={resetHistory}
-                    className="text-[10px] bg-emerald-800 hover:bg-emerald-700 px-2 py-1 rounded-lg transition-colors"
-                  >
-                    Reset
-                  </button>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs opacity-70">Available:</span>
+                    <span className="text-xs font-bold text-emerald-400">{meals.length - history.length}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs opacity-70">Resting:</span>
+                    <span className="text-xs font-bold text-amber-400">{history.length}</span>
+                  </div>
+                  <div className="flex items-center justify-between pt-2">
+                    <button 
+                      onClick={resetHistory}
+                      className="text-[10px] bg-emerald-800 hover:bg-emerald-700 px-2 py-1 rounded-lg transition-colors w-full"
+                    >
+                      Reset History
+                    </button>
+                  </div>
                 </div>
-                <p className="text-[9px] mt-2 opacity-50 italic">
-                  The next plan will prefer meals not used in the current one.
+                <p className="text-[9px] mt-2 opacity-50 italic leading-tight">
+                  Meals are only repeated once the entire list has been exhausted.
                 </p>
               </div>
             </div>
