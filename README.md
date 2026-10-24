@@ -1,20 +1,29 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# mealy
 
-# Run and deploy your AI Studio app
+A meal suggestion web app. It picks meals from a list you maintain and builds a
+14-day meal plan, printable from the browser.
 
-This contains everything you need to run your app locally.
+## How it works
 
-View your app in AI Studio: https://ai.studio/apps/4f6c2b7e-6038-4399-8c07-0c2690b4a562
+- The meal list is `public/meals.csv`. Required column: `name`. Optional columns:
+  `calories`, `ingredients`.
+- A plan needs at least 18 meals: 1 meal on each weekday, 2 on Saturday and
+  Sunday, for two weeks.
+- Meals in a plan are all different. Picks are random.
+- Used meals are remembered in the browser (`localStorage`) and rest until every
+  meal in the list has been used once. Then the rotation starts over.
+  "Reset History" clears it.
 
-## Run Locally
+Everything runs in the browser. No data leaves your device.
 
-**Prerequisites:**  Node.js
+## Run locally
 
+```
+npm install
+npm run dev
+```
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+Open http://localhost:3000. Build with `npm run build`, type-check with
+`npm run lint`.
+
+Live: https://mealy-two.vercel.app
