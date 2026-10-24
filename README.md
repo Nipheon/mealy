@@ -27,3 +27,9 @@ Open http://localhost:3000. Build with `npm run build`, type-check with
 `npm run lint`.
 
 Live: https://mealy-two.vercel.app
+
+## AI disclosure
+
+The first version of this app was generated in Google AI Studio (Google Gemini).
+Later changes were made with AI assistance. The author reviews the results and
+directs the project.
